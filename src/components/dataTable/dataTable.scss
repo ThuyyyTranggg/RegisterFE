@@ -1,0 +1,29 @@
+.tableData {
+    margin: 20px;
+    height: 100hv;
+    border: 1px;
+    border-color: black;
+}
+
+.cellAction {
+    display: flex;
+    align-items: center;
+    gap: 15x;
+
+    .viewButton {
+        padding: 2px 10px;
+        margin: 10px;
+        border-radius: 5px;
+        color: rgb(30,144,255);
+        border: 1px solid rgb(176,224,230);
+        cursor: pointer;
+    }
+
+    .DeleteButton {
+        padding: 2px 10px;
+        border-radius: 5px;
+        color: crimson;
+        border: 1px solid lightcoral;
+        cursor: pointer;
+    }
+}

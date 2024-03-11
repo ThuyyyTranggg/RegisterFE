@@ -1,0 +1,64 @@
+.header {
+    width: 100hv;
+}
+
+.list-items {
+    display: flex;
+    align-items: center;
+}
+
+.items {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px;
+
+    .item {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        font-size: medium;
+        margin: 10px;
+
+        &:hover {
+            color: rgb(28, 97, 208);
+            font-weight: bold;
+        }
+
+        .nav-link{
+            &.active {
+                font-weight: bold;
+                color: rgb(28, 97, 208);
+                font-size: large;
+            }
+        }
+    }
+}
+
+
+.nar-login button{
+    width: 150px;
+    height: 50px;
+    outline: none;
+    border: 1px solid rgb(48, 61, 117);
+    border-radius: 50px;
+    color: black;
+    font-size: 18px;
+    font-weight: 500;
+    background: white;
+    cursor: pointer;
+    color: rgb(28, 97, 208);
+    font-weight: bold;
+}
+
+.nar-login button:active {
+    background: #dfe4e2;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
