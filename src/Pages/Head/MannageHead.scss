@@ -117,15 +117,21 @@
                 
                 .form-title {
                     display: flex;
-                    align-items: center;
                     margin-bottom: 20px;
-
+                    margin-right: 20px;
+                    font-size: large;
+                    font-weight: bold;
+                    color: #4eb09b;
+                    width: 95%;
+                
                     .line {
-                        flex-grow:100;
+                        flex-grow:10;
                         border: 1px solid #000;
+                        
                     }
                     span {
-                        margin-left: 0 10px;
+                        margin-right: 20px;
+                        text-transform: uppercase;
                     }
                 }
             }
