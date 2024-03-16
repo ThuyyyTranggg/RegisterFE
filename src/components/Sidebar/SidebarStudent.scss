@@ -49,8 +49,48 @@
 }
 
 body {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
+
+/* Kích thước màn hình lớn hơn hoặc bằng 768px */
+@media screen and (min-width: 768px) {
+    .page-wrapper.toggled .page-content {
+      padding-left: 300px;
+    }
+  
+    #show-sidebar {
+      left: 0;
+    }
+  
+    .page-wrapper.toggled #show-sidebar {
+      left: -40px;
+    }
+  
+    .sidebar-wrapper {
+      width: 300px;
+      left: 0;
+    }
+  }
+  
+  /* Kích thước màn hình nhỏ hơn 768px */
+  @media screen and (max-width: 767px) {
+    .page-wrapper.toggled .page-content {
+      padding-left: 0;
+    }
+  
+    #show-sidebar {
+      left: 0;
+    }
+  
+    .page-wrapper.toggled #show-sidebar {
+      left: -40px;
+    }
+  
+    .sidebar-wrapper {
+      width: 100%;
+      left: -300px;
+    }
+  }
 
 .page-wrapper .sidebar-wrapper,
 .sidebar-wrapper .sidebar-brand>a,

@@ -4,11 +4,15 @@ import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import './SidebarStudent.scss'
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
+import axios from 'axios';
+import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
+
 
 function SidebarHead() {
     const [isSidebarToggled, setSidebarToggled] = useState(true);
     const [selectedMenuItem, setSelectedMenuItem] = useState(false);
+    const [head, setHead] = useState({});
 
     const handleSidebarToggle = () => {
         setSidebarToggled(!isSidebarToggled);
@@ -17,6 +21,31 @@ function SidebarHead() {
     const handleMenuItemClick = (menuItem) => {
         setSelectedMenuItem(menuItem);
     };
+
+    useEffect(() => {
+        const userToken = getTokenFromUrlAndSaveToStorage();
+        if (userToken) {
+          // Lấy token từ storage
+          const tokenSt = sessionStorage.getItem(userToken);
+    
+          if (!tokenSt) {
+            axios.get('http://localhost:5000/api/head/home', {
+              headers: {
+                'Authorization': `Bearer ${userToken}`,
+              },
+            })
+            .then(response => {
+              // Xử lý response từ backend (nếu cần)
+              console.log("DataHead: ", response);
+              setHead(response.data);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+          }
+        }
+      }, []);
+    
     return (
         <div className={`page-wrapper chiller-theme ${isSidebarToggled ? 'toggled' : ''}`}>
             <a id="show-sidebar" className="btn btn-sm btn-dark" href="#" onClick={handleSidebarToggle}>
@@ -37,7 +66,7 @@ function SidebarHead() {
                             <i className="fa fa-user-circle fa-4x" aria-hidden="true"></i>
                         </div>
                         <div className="user-info">
-                            <span className="user-name"> <strong>Joe Chien</strong></span>
+                            <span className="user-name"> <strong>{head.firstName + ' '+head.lastName}</strong></span>
                             <span className="user-role">Trưởng bộ môn</span>
                         </div>
                     </div>

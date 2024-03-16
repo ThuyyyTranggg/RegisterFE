@@ -16,6 +16,13 @@ import RegisterTopicSt from './Pages/Student/RegisterTopicSt';
 import HomeHead from './Pages/Head/HomeHead'
 import ProfileHe from './Pages/Head/ProfileHe'
 import ManageHead from './Pages/Head/MannageHead'
+import ManagementLec from './Pages/Admin/ManagementLec';
+import ManagementPeriod from './Pages/Admin/ManagementPeriod';
+import ManagementYears from './Pages/Admin/ManagementYears';
+import HomeLec from './Pages/Teacher/HomeLec';
+import ProfileLec from './Pages/Teacher/ProfileLec';
+import RegisTopicLec from './Pages/Teacher/RegisTopicLec';
+import ManageLec from './Pages/Teacher/ManageLec';
 
 function App() {
   return (
@@ -41,19 +48,27 @@ function App() {
         <Route path="/homeAdmin" element={<HomeAdmin />} />
         <Route path="/profileAdmin" element={<Profile />} />
         <Route path="/managermentStudent" element={<ManagementStudent />} />
-        
+        <Route path="/managermentLec" element={<ManagementLec />} />
+        <Route path="/managermentPeriod" element={<ManagementPeriod />} />
+        <Route path="/managermentYears" element={<ManagementYears />} />
+
+
         <Route path="/homeStudent" element={<HomeStudent />} />
         <Route path="/managermentTopicStudent" element={<ManagementTopic />} />
         <Route path="/profileStudent" element={<ProfileST />} />
-        <Route path="/registerTopic" element={<RegisterTopicSt />} />
+        <Route path="/RegisTopicStudent" element={<RegisterTopicSt />} />
 
         <Route path="/homeHead" element={<HomeHead />} />
         <Route path="/profileHead" element={<ProfileHe />} />
         <Route path="/managermentTopicHead" element={<ManageHead />} />
 
+        <Route path='/homeLecturer' element={<HomeLec/>}/>
+        <Route path='/profleLecturer' element={<ProfileLec/>}/>
+        <Route path='/registerTopicofLec' element={<RegisTopicLec/>}/>
+        <Route path='/managermentTopicLec' element={<ManageLec/>}/>
+
       </Routes>
     </>
   );
 }
-
 export default App;

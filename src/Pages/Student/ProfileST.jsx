@@ -1,7 +1,7 @@
 import React from 'react'
 import SidebarStudent from '../../components/Sidebar/SidebarStudent'
 import Navbar from '../../components/Navbar/Navbar'
-import EditProfileSt from '../../components/ProfileStudent/EditProfileSt'
+import EditProfileSt from '../../components/Profile/ProfileStudent/EditProfileSt'
 import './ProfileST.scss'
 
 function ProfileST() {

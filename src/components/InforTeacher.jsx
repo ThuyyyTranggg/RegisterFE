@@ -1,6 +1,7 @@
 import { Home, Menu} from '@mui/icons-material'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import ListLec from '../actions/Home/ListLec'
 
 function Infor_Teacher() {
     return (
@@ -17,6 +18,10 @@ function Infor_Teacher() {
                         <li class="breadcrumb-item active" aria-current="page">Tên giảng viên</li>
                     </ol>
                 </nav>
+            </div>
+
+            <div className='list'>
+                <ListLec/>
             </div>
         </div>
     )

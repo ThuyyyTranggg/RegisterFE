@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SidebarStudent from '../../components/Sidebar/SidebarStudent'
 import Navbar from '../../components/Navbar/Navbar'
 import './RegisterTopicSt.scss'
 import RegisTopicTable from '../../components/Table/RegisTopicTable'
 
 function RegisterTopicSt() {
+    
     return (
         <div className='RegisterHome'>
             <SidebarStudent />
@@ -26,12 +27,12 @@ function RegisterTopicSt() {
                                     <a href="#">Khóa luận tốt nghiệp</a>
                                 </div>
                             </div>
-                            <h4 style={{marginLeft:'20PX', color:'red'}}>CHƯA ĐẾN THỜI GIAN ĐĂNG KÝ ĐỀ TÀI</h4>
+                            <h4 style={{ marginLeft: '20PX', color: 'red' }}>CHƯA ĐẾN THỜI GIAN ĐĂNG KÝ ĐỀ TÀI</h4>
                         </div>
                     </div>
                 </div>
 
-                <RegisTopicTable/>
+                <RegisTopicTable />
             </div>
         </div>
     )
