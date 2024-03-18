@@ -1,27 +1,54 @@
-import React, { useState } from 'react';
-import './styleTable.scss';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
 
 function TbaleAssign() {
-  const [rows, setRows] = useState([
-    { id: 1, name: 'Mark', specialization: 'Otto', quantity: '@mdo', saved: false },
-    { id: 2, name: 'Jacob', specialization: 'Thornton', quantity: '@fat', saved: false },
-    { id: 3, name: 'Larry the Bird', specialization: '', quantity: '@twitter', saved: false },
-  ]);
+  const [topics, setTopics] = useState([]);
+  const [lec, setLec] = useState([])
+  const userToken = getTokenFromUrlAndSaveToStorage();
 
-  const handleDropdownChange = (id, saved) => {
-    setRows((prevRows) => prevRows.map((row) => (row.id === id ? { ...row, saved } : row)));
+  useEffect(() => {
+    console.log("Token: " + userToken);
+    if (userToken) {
+      const tokenSt = sessionStorage.getItem(userToken);
+      if (!tokenSt) {
+        axios.get('http://localhost:5000/api/head/subject/listAdd', {
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+          },
+        })
+          .then(response => {
+            console.log("Topic: ", response.data);
+            setTopics(response.data.listSubject);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+    }
+  }, [userToken]);
+
+  const handleAssignGVPB = (subjectId) => {
+    // Gửi yêu cầu để lấy danh sách giảng viên phản biện
+    axios.get(`http://localhost:5000/api/head/subject/listLecturer/${subjectId}`, {
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+      },
+    })
+      .then(response => {
+        // Hiển thị danh sách giảng viên phản biện và cho phép người dùng chọn
+        console.log("List of lecturers for counter argument: ", response.data.listLecturer);
+        setLec(response.data.listLecturer);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   };
 
-  const handleSaveClick = (id) => {
-    // Xử lý lưu dữ liệu, có thể gửi dữ liệu lên server ở đây
-    console.log(`Saved data for row with ID ${id}`);
-    handleDropdownChange(id, true);
+  const handleSelectChange = (event) => {
+    setLec(event.target.value);
   };
-
-  const handleEditClick = (id) => {
-    handleDropdownChange(id, false);
-  };
-
+  
   return (
     <div className='home-table'>
       <table className="table table-hover">
@@ -29,29 +56,27 @@ function TbaleAssign() {
           <tr>
             <th scope="col">#</th>
             <th scope="col">Tên đề tài</th>
-            <th scope="col">Chuyên ngành</th>
-            <th scope="col">Số lượng</th>
+            <th scope="col">Sinh viên 1</th>
+            <th scope="col">Sinh viên 2</th>
+            <th scope="col">Giảng viên hướng dẫn</th>
             <th scope="col">Phân GVPB</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <th scope="row">{row.id}</th>
-              <td>{row.name}</td>
-              <td>{row.specialization}</td>
-              <td>{row.quantity}</td>
+          {topics.map((item, index) => (
+            <tr key={index}>
+              <th scope='row'>{index + 1}</th>
+              <td>{item.subjectName}</td>
+              <td>{item.student1}</td>
+              <td>{item.student2}</td>
+              <td>{item.instructorId.person.firstName + ' ' + item.instructorId.person.lastName}</td>
               <td>
-                <select className='selectDr'disabled={row.saved} onChange={(e) => handleDropdownChange(row.id, false)}>
-                  <option value="dangKy">Danh sách giảng viên</option>
-                  <option value="somethingElse">Một tùy chọn khác</option>
-                </select>
-                
-                {!row.saved ? (
-                  <button className='button-save' onClick={() => handleSaveClick(row.id)}>Save</button>
-                ) : (
-                  <button className='button-edit' onClick={() => handleEditClick(row.id)}>Edit</button>
-                )}
+                <select className='optionLecs' value={lec} onChange={handleSelectChange} onClick={() => handleAssignGVPB(item.subjectId)}>
+                    <option className='option' value="" >Chọn giảng viên phản biện</option>
+                    {lec.map((lecturer, index) => (
+                      <option key={index} value={lecturer.id}>{lecturer.person.firstName} {lecturer.person.lastName}</option>
+                    ))}
+                  </select>
               </td>
             </tr>
           ))}

@@ -4,6 +4,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import ModalAddStudent from '../ModelAdd/ModalAddStudent';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
+
 
 function Datatable() {
     const [student, setStudents] = useState([]);
@@ -46,6 +48,7 @@ function Datatable() {
     };
 
     useEffect(() => {
+        
         const tokenSt = sessionStorage.getItem('userToken');
         console.log("Token SV2: " + tokenSt);
         if (tokenSt) {

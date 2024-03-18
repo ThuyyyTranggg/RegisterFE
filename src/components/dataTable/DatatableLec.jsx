@@ -10,13 +10,49 @@ function DatatableLec() {
     const [showDeletedList, setShowDeletedList] = useState(false);
     const [deleteSuccess, setDeleteSuccess] = useState(false);
     const [showViewForm, setShowViewForm] = useState(false);
-    const [editFormValues, setEditFormValues] = useState({}); // State để lưu giá trị chỉnh sửa
+    const [editFormValues, setEditFormValues] = useState({});
+    const [formData, setFormData] = useState({
+        personId: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        gender: '',
+        birthDay: '',
+        phone: '',
+        major: '',
+        author: ''
+    });
+    const [showForm, setShowForm] = useState(false);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:5000/api/admin/lecturer/create', formData)
+            .then(response => {
+                console.log('Lecturer created successfully:', response.data);
+                setShowForm(false);
+                fetchLecturers(); // Reload data after creating new lecturer
+            })
+            .catch(error => {
+                console.error('Error creating lecturer:', error);
+            });
+    };
+
+    const handleAddClick = () => {
+        setShowForm(true);
+    };
 
     const handleView = (row) => {
         setSelectedRow(row);
-        setEditFormValues(row); // Set giá trị cho form chỉnh sửa
+        setEditFormValues(row);
         setShowViewForm(true);
-        console.log('View clicked for row:', row);
     };
 
     const handleDelete = (row) => {
@@ -32,7 +68,6 @@ function DatatableLec() {
         })
             .then(response => {
                 if (response.status === 200) {
-                    // Xóa thành công
                     setLec(prevState => prevState.filter(lecturer => lecturer.person.personId !== selectedRow.id));
                     setShowConfirmation(false);
                     setDeleteSuccess(false);
@@ -60,7 +95,6 @@ function DatatableLec() {
         }));
     };
 
-
     const handleSubmitEdit = () => {
         axios.post(`http://localhost:5000/api/admin/lecturer/edit/${selectedRow.id}`, editFormValues, {
             headers: {
@@ -75,7 +109,6 @@ function DatatableLec() {
                         }
                         return lecturer;
                     }));
-                    // Ẩn form chỉnh sửa
                     setShowViewForm(false);
                     console.log('Chỉnh sửa thành công');
                 } else if (response.status === 404) {
@@ -88,9 +121,8 @@ function DatatableLec() {
                 console.error("Error editing lecturer:", error);
             });
     };
-    
 
-    useEffect(() => {
+    const fetchLecturers = () => {
         const tokenSt = sessionStorage.getItem('userToken');
         if (tokenSt) {
             axios.get('http://localhost:5000/api/admin/lecturer', {
@@ -103,11 +135,15 @@ function DatatableLec() {
                     setLec(LecturerArray);
                 })
                 .catch(error => {
-                    console.error("error: ", error);
+                    console.error("Error fetching lecturers:", error);
                 });
         } else {
             console.log("Lỗi !!");
         }
+    };
+
+    useEffect(() => {
+        fetchLecturers();
     }, []);
 
     const columns = [
@@ -177,6 +213,22 @@ function DatatableLec() {
                 rowCount={showDeletedList ? deletedRows.length : rows.length}
                 paginationMode="server"
             />
+
+            <button onClick={handleAddClick}>Add</button>
+            {showForm && (
+                <form onSubmit={handleSubmit}>
+                    <input type="text" name="personId" value={formData.personId} onChange={handleChange} placeholder="Person ID" />
+                    <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" />
+                    <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
+                    <input type="text" name="gender" value={formData.gender} onChange={handleChange} placeholder="Gender" />
+                    <input type="text" name="birthDay" value={formData.birthDay} onChange={handleChange} placeholder="Birth Day" />
+                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" />
+                    <input type="text" name="major" value={formData.major} onChange={handleChange} placeholder="Major" />
+                    <input type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Author" />
+                    <button type="submit">Save</button>
+                </form>
+            )}
 
             {showConfirmation && (
                 <div className="confirmation">
