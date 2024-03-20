@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
+import './styleTable.scss'
 
 function TableApprove() {
     const [topics, setTopics] = useState([]);

@@ -29,11 +29,6 @@ function Navbar() {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-end">
                             <li><a class="dropdown-items" href="#">Dự án mới...</a></li>
-                            <li>
-                                <Link className='link-profile' to='/profileStudent'>
-                                    <a class="dropdown-items" href="#">Trang cá nhân</a>
-                                </Link>
-                            </li>
                             <li><a class="dropdown-items" href="#">Cài đặt</a></li>
                             <li><hr class="dropdown-divider" /></li>
                             <li><a class="dropdown-items" href="#">Đăng xuất</a></li>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
 import './DataTableRegistrationPeroidLec.scss';
 
 function DataTableRegistrationPeroidLec() {
@@ -34,9 +33,6 @@ function DataTableRegistrationPeroidLec() {
         setEditedStartTime(item.registrationTimeStart);
         setEditedEndTime(item.registrationTimeEnd);
     };
-    
-    
-
     
 
     const handleSaveChanges = () => {

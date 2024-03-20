@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
+import './styleTable.scss'
 
 function TbaleAssign() {
   const [topics, setTopics] = useState([]);
@@ -38,6 +39,7 @@ function TbaleAssign() {
       .then(response => {
         // Hiển thị danh sách giảng viên phản biện và cho phép người dùng chọn
         console.log("List of lecturers for counter argument: ", response.data.listLecturer);
+        console.log("Person: ", response.data.person);
         setLec(response.data.listLecturer);
       })
       .catch(error => {

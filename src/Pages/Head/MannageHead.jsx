@@ -5,6 +5,7 @@ import './MannageHead.scss';
 import TableApprove from '../../components/TableOfHead/TableApprove';
 import TbaleAssign from '../../components/TableOfHead/TbaleAssign';
 import TableRegis from '../../components/TableOfHead/TableRegis';
+import TableTopic from '../../components/TableOfHead/TableTopic';
 
 function MannageHead() {
   const [selectedTitle, setSelectedTitle] = useState({ title1: 'Duyệt đề tài', title2: '', table: null });
@@ -42,10 +43,10 @@ function MannageHead() {
                 </div>
               </div>
               <div className="dropdown">
-                <div className="dropdown-title">Đăng ký đề tài</div>
+                <div className="dropdown-title">Đề tài của tôi</div>
                 <div className="dropdown-content">
-                  <a href="#" onClick={() => handleDropdownClick('Đăng ký đề tài', 'Tiểu luận chuyên ngành', <TableRegis/>)}>Tiểu luận chuyên ngành</a>
-                  <a href="#" onClick={() => handleDropdownClick('Đăng ký đề tài', 'Khóa luận tốt nghiệp')}>Khóa luận tốt nghiệp</a>
+                  <a href="#" onClick={() => handleDropdownClick('Đề tài của tôi', 'Tiểu luận chuyên ngành', <TableTopic/>)}>Tiểu luận chuyên ngành</a>
+                  <a href="#" onClick={() => handleDropdownClick('Đề tài của tôi', 'Khóa luận tốt nghiệp')}>Khóa luận tốt nghiệp</a>
                 </div>
               </div>
             </div>

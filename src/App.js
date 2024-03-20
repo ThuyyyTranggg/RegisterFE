@@ -23,6 +23,7 @@ import HomeLec from './Pages/Teacher/HomeLec';
 import ProfileLec from './Pages/Teacher/ProfileLec';
 import RegisTopicLec from './Pages/Teacher/RegisTopicLec';
 import ManageLec from './Pages/Teacher/ManageLec';
+import RegisterHead from './Pages/Head/RegisterHead';
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
 
         <Route path="/homeHead" element={<HomeHead />} />
         <Route path="/profileHead" element={<ProfileHe />} />
+        <Route path='/registerHead' element={<RegisterHead/>}/>
         <Route path="/managermentTopicHead" element={<ManageHead />} />
 
         <Route path='/homeLecturer' element={<HomeLec/>}/>

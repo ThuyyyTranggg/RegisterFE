@@ -42,7 +42,7 @@ function DataTableRegistrationPeroidSt() {
     const handleSaveChanges = () => {
         const tokenSt = sessionStorage.getItem('userToken');
         if (tokenSt && selectedPeriodId) {
-            axios.post(`http://localhost:5000/api/admin/PeriodLecturer/${selectedPeriodId}`, {
+            axios.post(`http://localhost:5000/api/admin/Period/${selectedPeriodId}`, {
                 registrationTimeStart: editedStartTime,
                 registrationTimeEnd: editedEndTime,
             }, {
