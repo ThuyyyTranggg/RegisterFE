@@ -10,36 +10,31 @@ const Navbar = () => {
     };
 
     return (
-        <div className="header border-bottom">
-            <div className="header items">
-                <div className="Logo">
+        <div>
+            <header class="header">
+                <div class="logo">
                     <img onClick={() => { setMenu("home") }} src="/assets/logo-lv1.png" /> {menu === "home" ? <h /> : <></>}
                 </div>
-
-                <div className="list-items">
-                    <ul className="items mx-auto">
-                        <li className="item">
-                            <NavLink className="nav-link me-4" to="/">Trang chủ</NavLink> {menu === "home" ? <h /> : <></>}
-                        </li>
-                        <li className="item">
-                            <NavLink className="nav-link me-4" to="/info-teacher">Giảng viên</NavLink> {menu === "teachers" ? <h /> : <></>}
-                        </li>
-                        <li className="item">
-                            <NavLink className="nav-link me-4" to="/contact">Liên hệ</NavLink> {menu === "contact" ? <h /> : <></>}
-                        </li>
+                <nav class="navigation">
+                    <ul>
+                        <li><a>
+                            <NavLink to="/">Trang chủ</NavLink> {menu === "home" ? <h /> : <></>}
+                        </a></li>
+                        <li><a>
+                            <NavLink to="/info-teacher">Giảng viên</NavLink> {menu === "teachers" ? <h /> : <></>}                            </a></li>
+                        <li><a>
+                            <NavLink to="/contact">Liên hệ</NavLink> {menu === "contact" ? <h /> : <></>}
+                        </a></li>
                     </ul>
-
-                    <div className="d-flex nar-login" role="search">
-                        <div>
-                            <button onClick={handleLoginClick}>
-                                <i className="fab fa-google-plus-g"></i> Đăng nhập
-                            </button>
-                        </div>
-                    </div>
+                </nav>
+                <div class="login-button">
+                    <button className="btn" onClick={handleLoginClick}>
+                        <i className="fab fa-google-plus-g"></i> Đăng nhập
+                    </button>
                 </div>
-            </div>
+            </header>
         </div>
-    );
+    )
 };
 
 export default Navbar;

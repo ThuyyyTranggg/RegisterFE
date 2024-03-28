@@ -32,6 +32,8 @@ function DataTable() {
     const [showModalAdd, setShowModalAdd] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
     const [showErrorToast, setShowErrorToast] = useState(false);
+    const [showAddToast, setShowAddToast] = useState(false);
+    const [showErrorToastAdd, setShowErrorToastAdd] = useState(false);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
     const [gender, setGender] = useState(false);
     const [formData, setFormData] = useState({
@@ -46,44 +48,48 @@ function DataTable() {
         id: '',
         year: '',
     });
-    
+
     const handleChangeAdd = (e) => {
         const { name, value } = e.target;
-        const valueGender = e.target.value === 'Nữ' ? true : false;
-        const valueId = name === 'id' ? parseInt(value) : formData.id;
-        const valueYear = name === 'year' ? parseInt(value) : formData.year;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value,
-            gender: valueGender,
-            id: valueId,
-            year: valueYear
-        }));
+        // Nếu trường nhập liệu là giới tính, cập nhật trực tiếp vào state formData
+        if (name === 'gender') {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value === 'Nữ' // Chuyển giá trị về true nếu là "Nữ", ngược lại là false
+            }));
+        } else {
+            // Các trường nhập liệu khác
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value
+            }));
+        }
     };
-    
+
 
     const handleSubmitAdd = () => {
 
         const userToken = getTokenFromUrlAndSaveToStorage();
         console.log(formData)
         axios.post('http://localhost:5000/api/admin/student/create',
-        {
             formData
-        }, {
-            headers: {
-                'Authorization': `Bearer ${userToken}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        })
-        .then(response => {
-            console.log('Sinh viên đã được tạo thành công:', response.data);
-            setShowModalAdd(false);        
-        })
-        .catch(error => {
-            console.error(error);
-            console.log("Lỗi");
+            , {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then(response => {
+                console.log('Sinh viên đã được tạo thành công:', response.data);
+                setShowModalAdd(false);
+                setShowAddToast(true);
+            })
+            .catch(error => {
+                console.error(error);
+                console.log("Lỗi");
+                setShowErrorToastAdd(true);
 
-        });
+            });
     };
 
     const handleGenderChange = (e) => {
@@ -344,6 +350,24 @@ function DataTable() {
                 </Toast.Body>
             </Toast>
 
+            <Toast show={showAddToast} onClose={() => setShowAddToast(false)} delay={3000} autohide style={{ position: 'fixed', top: '80px', right: '10px' }}>
+                <Toast.Header>
+                    <strong className="me-auto">Thông báo</strong>
+                </Toast.Header>
+                <Toast.Body>
+                    <DoneOutlinedIcon /> Thêm sinh viên thành công!
+                </Toast.Body>
+            </Toast>
+
+            <Toast show={showErrorToastAdd} onClose={() => setShowErrorToastAdd(false)} delay={3000} autohide style={{ position: 'fixed', top: '80px', right: '10px' }}>
+                <Toast.Header>
+                    <strong className="me-auto" style={{ color: 'red' }}><ErrorOutlineOutlinedIcon /> Lỗi</strong>
+                </Toast.Header>
+                <Toast.Body>
+                    Thêm sinh viên không thành công!
+                </Toast.Body>
+            </Toast>
+
             <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" style={{ display: showModal ? 'block' : 'none' }}>
                 <div className="modal-dialog">
                     <div className="modal-content">
@@ -420,24 +444,24 @@ function DataTable() {
                                 <input type="text" className="form-control" id="phone" name="phone" value={formData.phone} onChange={handleChangeAdd} />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor='gender' className="form-label">Giới tính</label>
+                                <label htmlFor='genderAdd' className="form-label">Giới tính</label>
                                 <div>
-                                    <input type="radio" id="nam" name="gender" value="Nam" checked={gender === false} onChange={handleGenderChange} />
+                                    <input type="radio" id="nam" name="gender" value="Nam" checked={formData.gender === false} onChange={handleChangeAdd} />
                                     <label htmlFor="nam">Nam</label>
                                 </div>
                                 <div>
-                                    <input type="radio" id="nu" name="gender" value="Nữ" checked={gender === true} onChange={handleGenderChange} />
+                                    <input type="radio" id="nu" name="gender" value="Nữ" checked={formData.gender === true} onChange={handleChangeAdd} />
                                     <label htmlFor="nu">Nữ</label>
                                 </div>
-                            
                             </div>
+
                             <div className="mb-3">
                                 <label htmlFor="birthDay" className="form-label">Ngày sinh</label>
                                 <input type="text" className="form-control" id="birthDay" name="birthDay" value={formData.birthDay} onChange={handleChangeAdd} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="major" className="form-label">Chuyên ngành</label>
-                                <select className="form-select" id="major" value={formData.major} onChange={handleChangeAdd} name="major">
+                                <select className="form-select" id="major" value={formData.major.name} onChange={handleChangeAdd} name="major">
                                     {major.map((majorItem, index) => (
                                         <option key={index} value={majorItem}>{majorItem}</option>
                                     ))}
@@ -445,7 +469,7 @@ function DataTable() {
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="class" className="form-label">Lớp</label>
-                                <select className="form-select" id="class" value={formData.id} onChange={handleChangeAdd} name="id">
+                                <select className="form-select" id="class" value={formData.id.id} onChange={handleChangeAdd} name="id">
                                     {classes.map((classItem, index) => (
                                         <option key={index} value={classItem.id}>{classItem.classname}</option>
                                     ))}
