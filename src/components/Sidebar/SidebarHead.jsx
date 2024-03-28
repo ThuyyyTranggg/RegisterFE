@@ -77,7 +77,7 @@ function SidebarHead() {
                             <li className={selectedMenuItem === 'trangCuaBan' ? 'active' : ''}><Link to="/homeHead" onClick={() => handleMenuItemClick('trangCuaBan')}><i className="fa fa-home"></i><span>Trang của bạn</span></Link></li>
                             <li className={selectedMenuItem === 'thongTinCaNhan' ? 'active' : ''}><Link to="/profileHead" onClick={() => handleMenuItemClick('thongTinCaNhan')}><i className="fa fa-user"></i><span>Thông tin cá nhân</span></Link></li>
                             <li className={selectedMenuItem === 'dangkiDeTai' ? 'active' : ''}><Link to="/registerHead" onClick={() => handleMenuItemClick('dangkiDeTai')}><i className="fa fa-book"></i><span>Đăng ký đề tài</span></Link></li>
-                            <li className={selectedMenuItem === 'quanlydetai' ? 'active' : ''}><Link to="/managermentTopicHead" onClick={() => handleMenuItemClick('quanlydetai')}><i className="fa fa-folder"></i><span>Quản lý đề tài</span></Link></li>
+                            <li className={selectedMenuItem === 'quanlydetai' ? 'active' : ''}><Link to="/managermentHead" onClick={() => handleMenuItemClick('quanlydetai')}><i className="fa fa-folder"></i><span>Quản lý đề tài</span></Link></li>
                         </ul>
                     </div>
                 </div>

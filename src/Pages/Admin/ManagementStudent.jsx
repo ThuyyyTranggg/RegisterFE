@@ -14,7 +14,14 @@ function ManagementStudent() {
         <Navbar />
         <hr />
         <div className="widgets">
-          <Datatable />
+          <div className='headMana'>
+            <div className='titleMana'>
+              <h3>Quản lý sinh viên</h3>
+            </div>
+            <div className='homeMana'>
+              <Datatable />
+            </div>
+          </div>
         </div>
       </div>
     </div>

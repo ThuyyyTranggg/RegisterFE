@@ -27,7 +27,7 @@ function Home() {
                         <img src="/assets/HuongDan.jfif" class="card-img-top" alt="..." style={{padding: '20px'}}/>
                         <div class="card-body">
                             <h5 class="card-title">Hướng dẫn</h5>
-                            <a href="#" class="btn btn-primary">Xem</a>
+                            <a href="/intruction" class="btn btn-primary">Xem</a>
                         </div>
                     </div>
                 </div>

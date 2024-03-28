@@ -43,3 +43,11 @@ span {
     display: block;
     margin-right: 20px;
 }
+
+.link{
+    text-decoration: none;
+    color: aliceblue;
+    &:hover{
+        font-weight: bold;
+    }
+}

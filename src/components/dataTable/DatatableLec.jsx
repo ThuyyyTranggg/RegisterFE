@@ -2,58 +2,41 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import './DatatableLec.scss';
+import { Modal, Button } from 'react-bootstrap';
+import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
+import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
+import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
+import { Toast } from 'react-bootstrap';
+import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import Item from 'antd/es/list/Item';
 
 function DatatableLec() {
-    const [lec, setLec] = useState([]);
+    const [lectures, setLectures] = useState([]);
+    const [person, setPerson] = useState([]);
+    const [author, setAuthors] = useState([]);
+    const [major, setMajr] = useState([]);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
-    const [showDeletedList, setShowDeletedList] = useState(false);
-    const [deleteSuccess, setDeleteSuccess] = useState(false);
-    const [showViewForm, setShowViewForm] = useState(false);
-    const [editFormValues, setEditFormValues] = useState({});
-    const [formData, setFormData] = useState({
+    const [showDeletedLecturers, setShowDeleteLecturers] = useState(false);
+    const [userEdit, setUserEdit] = useState({
         personId: '',
         firstName: '',
         lastName: '',
-        email: '',
-        gender: '',
         birthDay: '',
         phone: '',
-        major: '',
-        author: ''
+        gender: '',
+        authority: '',
     });
-    const [showForm, setShowForm] = useState(false);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        axios.post('http://localhost:5000/api/admin/lecturer/create', formData)
-            .then(response => {
-                console.log('Lecturer created successfully:', response.data);
-                setShowForm(false);
-                fetchLecturers(); // Reload data after creating new lecturer
-            })
-            .catch(error => {
-                console.error('Error creating lecturer:', error);
-            });
-    };
-
-    const handleAddClick = () => {
-        setShowForm(true);
-    };
-
-    const handleView = (row) => {
-        setSelectedRow(row);
-        setEditFormValues(row);
-        setShowViewForm(true);
-    };
+    const [showModal, setShowModal] = useState(false);
+    const [showModalAdd, setShowModalAdd] = useState(false);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [showDeleteToast, setShowDeleteToast] = useState(false);
+    const [gender, setGender] = useState(false);
 
     const handleDelete = (row) => {
         setSelectedRow(row);
@@ -61,25 +44,27 @@ function DatatableLec() {
     };
 
     const confirmDelete = () => {
-        axios.post(`http://localhost:5000/api/admin/lecturer/delete/${selectedRow.id}`, {}, {
+        const lecturerId = selectedRow.lecturerId;
+        axios.post(`http://localhost:5000/api/admin/lecturer/delete/${lecturerId}`, {}, {
             headers: {
                 'Authorization': `Bearer ${sessionStorage.getItem('userToken')}`,
             }
         })
             .then(response => {
                 if (response.status === 200) {
-                    setLec(prevState => prevState.filter(lecturer => lecturer.person.personId !== selectedRow.id));
+                    // Xóa thành công
+                    setLectures(prevState => prevState.filter(lecturer => lecturer.lecturerId !== lecturerId));
                     setShowConfirmation(false);
-                    setDeleteSuccess(false);
+                    setShowDeleteToast(true);
                     console.log('Xóa thành công');
                 } else if (response.status === 404) {
-                    console.log('Lecturer not found.');
+                    console.log('Sinh viên không tồn tại.');
                 } else if (response.status === 403) {
-                    console.log('Access forbidden.');
+                    console.log('Truy cập bị từ chối.');
                 }
             })
             .catch(error => {
-                console.error("Error deleting lecturer:", error);
+                console.error("Lỗi khi xóa sinh viên:", error);
             });
     };
 
@@ -87,194 +72,282 @@ function DatatableLec() {
         setShowConfirmation(false);
     };
 
-    const handleEditChange = (e) => {
+    const [isDataFetched, setIsDataFetched] = useState(false);
+
+    useEffect(() => {
+        if (!isDataFetched) {
+            const tokenSt = sessionStorage.getItem('userToken');
+            if (tokenSt) {
+                axios.get('http://localhost:5000/api/admin/lecturer', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('userToken')}`,
+                    },
+                })
+                    .then(response => {
+                        const lecturerArray = response.data.listLecturer || [];
+                        setLectures(lecturerArray);
+                        const authorArray = response.data.authors || [];
+                        setAuthors(authorArray);
+                        console.log("Data: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("error: ", error);
+                    });
+            }
+        }
+    }, [isDataFetched]);
+
+
+
+    const handleEdit = (lecture) => {
+        setUserEdit(lecture.person);
+        setGender(lecture.person.gender);
+        setShowModal(true);
+    };
+
+    const handleSubmitEdit = () => {
+        const id = userEdit.personId; // Sử dụng thông tin từ state userEdit
+        const formDataEdit = new FormData();
+        formDataEdit.append('personId', userEdit.personId);
+        formDataEdit.append('firstName', userEdit.firstName);
+        formDataEdit.append('lastName', userEdit.lastName);
+        formDataEdit.append('birthDay', userEdit.birthDay);
+        formDataEdit.append('phone', userEdit.phone);
+        formDataEdit.append('gender', gender);
+        formDataEdit.append('authority', userEdit.authority);
+
+        console.log(userEdit);
+        axios.post(`http://localhost:5000/api/admin/lecturer/edit/${id}`, formDataEdit, {
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('userToken')}`,
+                'Content-Type': 'multipart/form-data'
+            },
+        })
+            .then(response => {
+                console.log("EditHeaderSuccess: ", response.data);
+                const updatedLecturer = lectures.map(lecture => {
+                    if (lecture.person.personId === id) {
+                        return {
+                            ...lecture,
+                            person: {
+                                ...lecture.person,
+                                firstName: userEdit.firstName,
+                                lastName: userEdit.lastName,
+                                birthDay: userEdit.birthDay,
+                                phone: userEdit.phone,
+                                gender: gender,
+                                authority: userEdit.authority,
+                            }
+                        };
+                    }
+                    return lecture;
+                });
+                setLectures(updatedLecturer);
+                setShowSuccessToast(true);
+                setShowModal(false);
+            })
+            .catch(error => {
+                console.error(error);
+                setShowErrorToast(true);
+            })
+    };
+
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        setEditFormValues(prevState => ({
+        setUserEdit(prevState => ({
             ...prevState,
             [name]: value
         }));
     };
 
-    const handleSubmitEdit = () => {
-        axios.post(`http://localhost:5000/api/admin/lecturer/edit/${selectedRow.id}`, editFormValues, {
-            headers: {
-                'Authorization': `Bearer ${sessionStorage.getItem('userToken')}`,
-            }
-        })
-            .then(response => {
-                if (response.status === 200) {
-                    setLec(prevState => prevState.map(lecturer => {
-                        if (lecturer.person.personId === selectedRow.id) {
-                            return { ...lecturer, person: { ...lecturer.person, ...editFormValues } };
-                        }
-                        return lecturer;
-                    }));
-                    setShowViewForm(false);
-                    console.log('Chỉnh sửa thành công');
-                } else if (response.status === 404) {
-                    console.log('Lecturer not found.');
-                } else if (response.status === 403) {
-                    console.log('Access forbidden.');
-                }
-            })
-            .catch(error => {
-                console.error("Error editing lecturer:", error);
-            });
+    const handleGenderChange = (e) => {
+        const value = e.target.value === 'Nữ' ? true : false;
+        setGender(value);
     };
-
-    const fetchLecturers = () => {
-        const tokenSt = sessionStorage.getItem('userToken');
-        if (tokenSt) {
-            axios.get('http://localhost:5000/api/admin/lecturer', {
-                headers: {
-                    'Authorization': `Bearer ${tokenSt}`,
-                },
-            })
-                .then(response => {
-                    const LecturerArray = response.data.listLecturer || [];
-                    setLec(LecturerArray);
-                })
-                .catch(error => {
-                    console.error("Error fetching lecturers:", error);
-                });
-        } else {
-            console.log("Lỗi !!");
-        }
-    };
-
-    useEffect(() => {
-        fetchLecturers();
-    }, []);
-
-    const columns = [
-        { field: 'id', headerName: 'Mã GV', width: 100 },
-        { field: 'firstName', headerName: 'Họ', width: 150 },
-        { field: 'lastName', headerName: 'Tên', width: 100 },
-        { field: 'gender', headerName: 'Giới tính', width: 100 },
-        { field: 'phone', headerName: 'Số điện thoại', width: 150 },
-        { field: 'mail', headerName: 'Email', width: 300 },
-        { field: 'status', headerName: 'Trạng thái', width: 100 },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 150,
-            renderCell: (params) => (
-                <div>
-                    <button className='btnView' onClick={() => handleView(params.row)}>View</button>
-                    {!showDeletedList && <button className='btnDelete' onClick={() => handleDelete(params.row)}>Delete</button>}
-                </div>
-            ),
-            headerClassName: 'customHeader',
-        },
-    ];
-
-    const rows = lec
-        .filter(lecturer => lecturer.person.status === true)
-        .map(lecturer => ({
-            id: lecturer.person.personId,
-            firstName: lecturer.person.firstName,
-            lastName: lecturer.person.lastName,
-            gender: lecturer.person.gender ? 'Nữ' : 'Nam',
-            phone: lecturer.person.phone,
-            mail: lecturer.person.username,
-            status: lecturer.person.status,
-        }));
-
-    const deletedRows = lec
-        .filter(lecturer => lecturer.person.status === false)
-        .map(lecturer => ({
-            id: lecturer.person.personId,
-            firstName: lecturer.person.firstName,
-            lastName: lecturer.person.lastName,
-            gender: lecturer.person.gender ? 'Nữ' : 'Nam',
-            phone: lecturer.person.phone,
-            mail: lecturer.person.username,
-            status: lecturer.person.status,
-        }));
 
     return (
-        <div className='homeData'>
-            {(showConfirmation || deleteSuccess || showViewForm) && <div className="overlay"></div>}
-
-            <div className='titleList'>
-                <div className='tableTitle'>
-                    <h3 className='title'>QUẢN LÝ GIẢNG VIÊN</h3>
-                </div>
-                <div className='tableTitleList'>
-                    <button onClick={() => setShowDeletedList(!showDeletedList)}>
-                        {showDeletedList ? 'Danh sách giảng viên' : 'Danh sách giảng viên bị xóa'}
+        <div>
+            <div className='header-table'>
+                <div className='btn-add'>
+                    <button type="button" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#AddStudent">
+                        Add
                     </button>
                 </div>
+                <button className='button-listDelete' onClick={() => setShowDeleteLecturers(!showDeletedLecturers)}>
+                    {showDeletedLecturers ? <><PlaylistAddCheckOutlinedIcon /> Dánh sách giảng viên</> : <><PlaylistRemoveOutlinedIcon /> Dánh sách giảng viên đã xóa</>}
+                </button>
             </div>
-            <DataGrid
-                rows={showDeletedList ? deletedRows : rows}
-                columns={columns}
-                pagination
-                rowCount={showDeletedList ? deletedRows.length : rows.length}
-                paginationMode="server"
-            />
-
-            <button onClick={handleAddClick}>Add</button>
-            {showForm && (
-                <form onSubmit={handleSubmit}>
-                    <input type="text" name="personId" value={formData.personId} onChange={handleChange} placeholder="Person ID" />
-                    <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" />
-                    <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" />
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
-                    <input type="text" name="gender" value={formData.gender} onChange={handleChange} placeholder="Gender" />
-                    <input type="text" name="birthDay" value={formData.birthDay} onChange={handleChange} placeholder="Birth Day" />
-                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" />
-                    <input type="text" name="major" value={formData.major} onChange={handleChange} placeholder="Major" />
-                    <input type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Author" />
-                    <button type="submit">Save</button>
-                </form>
+            {showDeletedLecturers && (
+                <table className="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">MSGV</th>
+                            <th scope="col">Họ và tên</th>
+                            <th scope="col">Giới tính</th>
+                            <th scope="col">Số điện thoại</th>
+                            <th scope="col">Chuyên ngành</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {lectures.filter(lecture => lecture.person.status === false)
+                            .map((lecture, index) => (
+                                <tr key={index}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td>{lecture.lecturerId}</td>
+                                    <td>{lecture.person.firstName} {lecture.person.lastName}</td>
+                                    <td>{lecture.person.gender ? 'Nữ' : 'Nam'}</td>
+                                    <td>{lecture.person.phone}</td>
+                                    <td>{lecture.major}</td>
+                                    <td>{lecture.authority.name}</td>
+                                    <td>
+                                        <button className='btnView'><RestoreOutlinedIcon /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
             )}
 
-            {showConfirmation && (
-                <div className="confirmation">
-                    <p>Bạn có chắc chắn muốn xóa giảng viên {selectedRow?.firstName} {selectedRow?.lastName} không?</p>
-                    <button className='btnSuccess' onClick={confirmDelete}>Xác nhận</button>
-                    <button className='btnCancel' onClick={cancelDelete}>Hủy</button>
-                </div>
+            {!showDeletedLecturers && (
+                <table className="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">MSGV</th>
+                            <th scope="col">Họ và tên</th>
+                            <th scope="col">Giới tính</th>
+                            <th scope="col">Số điện thoại</th>
+                            <th scope="col">Chuyên ngành</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {lectures.filter(lecture => lecture.person.status === true)
+                            .map((lecture, index) => (
+                                <tr key={index}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td>{lecture.lecturerId}</td>
+                                    <td>{lecture.person.firstName} {lecture.person.lastName}</td>
+                                    <td>{lecture.person.gender ? 'Nữ' : 'Nam'}</td>
+                                    <td>{lecture.person.phone}</td>
+                                    <td>{lecture.major}</td>
+                                    <td>{lecture.authority.name}</td>
+                                    <td>
+                                        <button className="btnView" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => handleEdit(lecture)}>
+                                            <EditOutlinedIcon />
+                                        </button>
+                                        <button className='btnDelete' onClick={() => handleDelete(lecture)}>
+                                            <DeleteRoundedIcon />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
             )}
 
-            {showViewForm && (
-                <div className="confirmation view-form">
-                    <h3>Thông tin giảng viên</h3>
-                    <p>Mã GV: {selectedRow?.id}</p>
-                    <p>Họ và tên: {selectedRow?.firstName} {selectedRow?.lastName}</p>
-                    <p>Giới tính: {selectedRow?.gender}</p>
-                    <p>Số điện thoại: {selectedRow?.phone}</p>
-                    <p>Email: {selectedRow?.mail}</p>
-                    <div className="edit-form">
-                        <input type="text" name="firstName" value={editFormValues.firstName || ''} onChange={handleEditChange} />
-                        <input type="text" name="lastName" value={editFormValues.lastName || ''} onChange={handleEditChange} />
-                        <input type="text" name="gender" value={editFormValues.gender || ''} onChange={handleEditChange} />
-                        <input type="text" name="phone" value={editFormValues.phone || ''} onChange={handleEditChange} />
-                        <input type="text" name="mail" value={editFormValues.mail || ''} onChange={handleEditChange} />
+            <Modal show={showConfirmation} onHide={cancelDelete}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Xác nhận xóa giảng viên</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Bạn có chắc chắn muốn xóa giảng viên này không?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={cancelDelete}>
+                        Hủy
+                    </Button>
+                    <Button variant="primary" onClick={confirmDelete}>
+                        Xác nhận
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
-                        <button className="btnSave" onClick={handleSubmitEdit}>Lưu</button>
-                        <button className='btnCancel' onClick={() => setShowViewForm(false)}>Đóng</button>
+            <Toast show={showSuccessToast} onClose={() => setShowSuccessToast(false)} delay={3000} autohide style={{ position: 'fixed', top: '80px', right: '10px' }}>
+                <Toast.Header>
+                    <strong className="me-auto">Thông báo</strong>
+                </Toast.Header>
+                <Toast.Body>
+                    <DoneOutlinedIcon /> Cập nhật thông tin thành công!
+                </Toast.Body>
+            </Toast>
+
+            <Toast show={showDeleteToast} onClose={() => setShowDeleteToast(false)} delay={3000} autohide style={{ position: 'fixed', top: '80px', right: '10px' }}>
+                <Toast.Header>
+                    <strong className="me-auto">Thông báo</strong>
+                </Toast.Header>
+                <Toast.Body>
+                    <DoneOutlinedIcon /> Xóa giảng viên thành công!
+                </Toast.Body>
+            </Toast>
+
+            <Toast show={showErrorToast} onClose={() => setShowErrorToast(false)} delay={3000} autohide style={{ position: 'fixed', top: '80px', right: '10px' }}>
+                <Toast.Header>
+                    <strong className="me-auto" style={{ color: 'red' }}><ErrorOutlineOutlinedIcon /> Lỗi</strong>
+                </Toast.Header>
+                <Toast.Body>
+                    Đã xảy ra lỗi khi cập nhật thông tin!
+                </Toast.Body>
+            </Toast>
+
+            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true" style={{ display: showModal ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel1">CẬP NHẬT THÔNG TIN GIẢNG VIÊN</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label htmlFor="firstName" className="form-label">Họ</label>
+                                <input type="text" className="form-control" id="firstName" name="firstName" value={userEdit.firstName} onChange={handleChange} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor='lastName' className="form-label">Tên</label>
+                                <input type="text" className="form-control" id="lastName" name="lastName" value={userEdit.lastName} onChange={handleChange} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor='gender' className="form-label">Giới tính</label>
+                                <div>
+                                    <input type="radio" id="nam" name="gender" value="Nam" checked={gender === false} onChange={handleGenderChange} />
+                                    <label htmlFor="nam">Nam</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="nu" name="gender" value="Nữ" checked={gender === true} onChange={handleGenderChange} />
+                                    <label htmlFor="nu">Nữ</label>
+                                </div>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor='brithDay' className="form-label">Ngày sinh</label>
+                                <input type="date" className="form-control" id="brithDay" name="birthDay" value={userEdit.birthDay} onChange={handleChange} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="authority" className="form-label">Role</label>
+                                <select className="form-select" id="authority" value={userEdit.authority} onChange={handleChange} name="authority">
+                                    {author && author.filter(Item => Item.name === 'ROLE_HEAD' || Item.name === 'ROLE_LECTURER').map((Item, index) => (
+                                        <option key={index} value={Item.name}>{Item.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor='phone' className="form-label">Số điện thoại</label>
+                                <input type="text" className="form-control" id="phone" name="phone" value={userEdit.phone} onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={() => setShowModal(false)}>Close</button>
+                            <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleSubmitEdit}>
+                                Cập nhật
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )}
-
-            {deleteSuccess && (
-                <div className="toast-container position-fixed bottom-0 end-0 p-3">
-                    <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div className="toast-header">
-                            <img src="..." className="rounded me-2" alt="..." />
-                            <strong className="me-auto">Bootstrap</strong>
-                            <small>Now</small>
-                            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div className="toast-body">
-                            Xóa thành công!
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+            </div>
+        </div >
     );
 }
 

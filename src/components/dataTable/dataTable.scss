@@ -137,3 +137,19 @@
         border-radius: 5px;
     }
 }
+
+
+.button-listDelete{
+    border: none;
+    background-color: white;
+    float: right;
+    padding: 5px;
+    &:hover{
+        color: #18846c;
+    }
+}
+
+.header-table{
+    display: flex;
+    justify-content: space-between;
+}

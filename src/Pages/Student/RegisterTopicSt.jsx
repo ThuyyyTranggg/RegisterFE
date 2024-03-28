@@ -31,7 +31,6 @@ function RegisterTopicSt() {
                         </div>
                     </div>
                 </div>
-
                 <RegisTopicTable />
             </div>
         </div>

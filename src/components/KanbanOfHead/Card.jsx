@@ -11,6 +11,8 @@ import './styleKanban.scss'
 
 const Card = ({ task, index }) => {
   const [taskDetail, setTaskDetail] = useState({});
+  const [commentContent, setCommentContent] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null); 
 
   useEffect(() => {
     const taskId = task.taskId;
@@ -35,6 +37,34 @@ const Card = ({ task, index }) => {
       }
     }
   }, []);
+
+  const handleCommentChange = (event) => {
+    setCommentContent(event.target.value);
+  };
+
+  const handleCommentSubmit = () => {  
+    const userToken = getTokenFromUrlAndSaveToStorage();
+    if (userToken) {
+      axios.post(`http://localhost:5000/api/head/comment/create/${task.taskId}`, {
+        headers: {
+          'Authorization': `Bearer ${userToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        // Xử lý phản hồi từ server nếu cần
+        console.log('Comment submitted successfully:', response.data);
+        // Xóa nội dung comment và tệp đã chọn sau khi gửi thành công
+        setCommentContent('');
+        setSelectedFile(null);
+      })
+      .catch(error => {
+        // Xử lý lỗi nếu có
+        console.error('Error submitting comment:', error);
+      });
+    }
+  };
+  
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -92,14 +122,14 @@ const Card = ({ task, index }) => {
                     <div>
                       <div class="mb-3">
                         <label for="exampleFormControlTextarea1" class="form-label">Comment</label>
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" value={commentContent} onChange={handleCommentChange}></textarea>
                       </div>
                     </div>
                     <div class="mb-3">
                       <input class="form-control" type="file" id="formFile" />
                     </div>
                     <div className='button-container'>
-                      <button className='btn-comment'>
+                      <button className='btn-comment' onClick={handleCommentSubmit}>
                         Comment
                       </button>
                     </div>

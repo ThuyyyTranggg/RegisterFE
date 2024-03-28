@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getTokenFromUrlAndSaveToStorage } from '../tokenutils';
-import './styleTable.scss'
+import './styleTable.scss';
 
-function TbaleAssign() {
+function TableAssign() {
   const [topics, setTopics] = useState([]);
-  const [lec, setLec] = useState([])
+  const [lecturers, setLecturers] = useState([]);
+  const [lecturerId, setSelectedLecturerId] = useState(''); // State mới để lưu trữ id của giảng viên được chọn
   const userToken = getTokenFromUrlAndSaveToStorage();
 
   useEffect(() => {
@@ -29,28 +30,54 @@ function TbaleAssign() {
     }
   }, [userToken]);
 
+  const handleSelectChange = (event) => {
+    setSelectedLecturerId(event.target.value); // Cập nhật id của giảng viên được chọn
+  };
+
   const handleAssignGVPB = (subjectId) => {
-    // Gửi yêu cầu để lấy danh sách giảng viên phản biện
     axios.get(`http://localhost:5000/api/head/subject/listLecturer/${subjectId}`, {
       headers: {
         'Authorization': `Bearer ${userToken}`,
       },
     })
       .then(response => {
-        // Hiển thị danh sách giảng viên phản biện và cho phép người dùng chọn
         console.log("List of lecturers for counter argument: ", response.data.listLecturer);
-        console.log("Person: ", response.data.person);
-        setLec(response.data.listLecturer);
+        setLecturers(response.data.listLecturer);
+        console.log("LecID: ", lecturerId); // Xóa dòng này
       })
       .catch(error => {
         console.error(error);
       });
   };
 
-  const handleSelectChange = (event) => {
-    setLec(event.target.value);
+  const handleGVPB = (subjectId) => { // Loại bỏ lectureId
+    if (lecturerId && subjectId) { // Thay lectureId bằng selectedLecturerId
+      axios.post(`http://localhost:5000/api/head/subject/addCounterArgumrnt/${subjectId}/${lecturerId}`, null, {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      })
+        .then(response => {
+          console.log('Successfully assigned lecturer for counter argument:', response.data);
+          const updatedTopics = topics.map(topic => {
+            if (topic.subjectId === subjectId) {
+              return { ...topic, counterArgumentLecturer: response.data };
+            }
+            return topic;
+          });
+          setTopics(updatedTopics);
+        })
+        .catch(error => {
+          console.error('Error assigning lecturer for counter argument:', error);
+        });
+    } else {
+      console.error('LectureId or subjectId is undefined or empty');
+      console.log("LectureId: ", lecturerId); // Thay lectureId bằng selectedLecturerId
+      console.log("SubjectId: ", subjectId);
+    }
   };
-  
+
+
   return (
     <div className='home-table'>
       <table className="table table-hover">
@@ -73,12 +100,13 @@ function TbaleAssign() {
               <td>{item.student2}</td>
               <td>{item.instructorId.person.firstName + ' ' + item.instructorId.person.lastName}</td>
               <td>
-                <select className='optionLecs' value={lec} onChange={handleSelectChange} onClick={() => handleAssignGVPB(item.subjectId)}>
-                    <option className='option' value="" >Chọn giảng viên phản biện</option>
-                    {lec.map((lecturer, index) => (
-                      <option key={index} value={lecturer.id}>{lecturer.person.firstName} {lecturer.person.lastName}</option>
-                    ))}
-                  </select>
+                <select className='optionLecs' value={lecturerId} onChange={handleSelectChange} onClick={() => handleAssignGVPB(item.subjectId)}>
+                  <option className='option' value="" >Chọn giảng viên phản biện</option>
+                  {lecturers.map((lecturer, index) => (
+                    <option key={index} value={lecturer.lecturerId}>{lecturer.person.firstName} {lecturer.person.lastName}</option>
+                  ))}
+                </select>
+                <button onClick={() => handleGVPB(item.subjectId, lecturerId)}>Phân công</button> {/* Truyền subjectId và lectureId vào hàm handleGVPB */}
               </td>
             </tr>
           ))}
@@ -88,4 +116,4 @@ function TbaleAssign() {
   );
 }
 
-export default TbaleAssign;
+export default TableAssign;

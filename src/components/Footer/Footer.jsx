@@ -39,13 +39,13 @@ function Footer() {
                                 <h3 style={{color:'white'}}>QUICK LINK</h3>
                             </li>
                             <li className='link-item' style={{color:'white'}}>
-                                <NavLink to="/">Trang chủ</NavLink>
+                                <NavLink className='link' to="/">Trang chủ</NavLink>
                             </li>
                             <li className='link-item' style={{color:'white'}}>
-                                <NavLink to="/info-teacher">Giảng viên</NavLink>
+                                <NavLink className='link' to="/info-teacher">Giảng viên</NavLink>
                             </li>
                             <li className='link-item'style={{color:'white'}}>
-                                <NavLink to="/contact">Liên hệ</NavLink>
+                                <NavLink className='link' to="/contact">Liên hệ</NavLink>
                             </li>
                         </ul>
                     </div>

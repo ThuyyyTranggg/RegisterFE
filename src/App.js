@@ -24,6 +24,9 @@ import ProfileLec from './Pages/Teacher/ProfileLec';
 import RegisTopicLec from './Pages/Teacher/RegisTopicLec';
 import ManageLec from './Pages/Teacher/ManageLec';
 import RegisterHead from './Pages/Head/RegisterHead';
+import TopicOfHead from './Pages/Head/TopicOfHead';
+import Team from './components/Team';
+import Intruction from './components/Intruction';
 
 function App() {
   return (
@@ -40,8 +43,10 @@ function App() {
           }
         >
           <Route index element={<Home />} />
+          <Route path="/intruction" element={<Intruction />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/info-teacher" element={<InforTeacher />} />
+          <Route path="/info-teacher" element={<Team />} />
+          <Route path="/info-teacher/:lecturerId" element={<InforTeacher />} />
         </Route>
 
         {/* Tách riêng trang Login không hiển thị Header và Footer */}
@@ -62,7 +67,8 @@ function App() {
         <Route path="/homeHead" element={<HomeHead />} />
         <Route path="/profileHead" element={<ProfileHe />} />
         <Route path='/registerHead' element={<RegisterHead/>}/>
-        <Route path="/managermentTopicHead" element={<ManageHead />} />
+        <Route path="/managermentHead" element={<ManageHead />} />
+        <Route path="/managermentTopicHead" element={<TopicOfHead />} />
 
         <Route path='/homeLecturer' element={<HomeLec/>}/>
         <Route path='/profleLecturer' element={<ProfileLec/>}/>

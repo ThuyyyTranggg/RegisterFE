@@ -1,6 +1,6 @@
 import React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import Card from './Card'; 
+import Card from './Card'; // Import Card component
 
 const Column = ({title, tasks, droppableId }) => {
   return (
