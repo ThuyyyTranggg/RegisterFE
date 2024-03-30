@@ -1,0 +1,15 @@
+.header-tableTopic {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .btn-importFile {
+        button {
+            border: none;
+            background-color: white;
+            &:hover {
+                color: darkgreen;
+            }
+        }
+    }
+}
