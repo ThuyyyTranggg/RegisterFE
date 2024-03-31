@@ -77,6 +77,10 @@ function DataTableType() {
                     <p key={index}>{item.typeName}</p>
                 ))}
             </div>
+
+            <table>
+                
+            </table>
         </div>
     );
 }
